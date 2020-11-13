@@ -67,7 +67,7 @@ strSelect := TSqlExtractor<TPedido>.ExtractUpdateSql(vPedido)
                       Order.Total,
                       Order.ITem  
                 from Order 
-                INNER JOIN Item as Item on Item.Id = Order.Item'
+                INNER JOIN Item as Item on Item.Id = Order.Item
 ```
 
 It also would be a Single Instance of TItem
