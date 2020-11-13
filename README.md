@@ -1,4 +1,4 @@
-# SqlExtrator
+# SqlExtractor
 Extract SQL from the object structures
 
 ```delphi
