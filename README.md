@@ -25,7 +25,7 @@ type
 
 TOrder = class
   [KEY]
-  FID: string;
+  FID: string; //Now ID is Primary Key
   FVendor: integer;
   FCustomer: integer;
   FDate: TDatetime;
