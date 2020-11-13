@@ -4,9 +4,17 @@ interface
 
 uses
   Winapi.Windows, Winapi.Messages, System.SysUtils, System.Variants, System.Classes, Vcl.Graphics,
-  Vcl.Controls, Vcl.Forms, Vcl.Dialogs, Vcl.StdCtrls;
+  Vcl.Controls, Vcl.Forms, Vcl.Dialogs, Vcl.StdCtrls,
+  System.Generics.Collections, Assis.SQLExtractor;
 
 type
+
+  TItem = class
+    [key('Id')]
+    FDescription: Currency;
+    Price: Currency;
+
+  end;
 
   TOrder = class
     [key]
@@ -15,6 +23,12 @@ type
     FCustomer: integer;
     FDate: TDatetime;
     FTotal: Currency;
+    [ForeignKey('Id')]
+    FITem: TObjectList<TItem>;
+
+    constructor Create;
+    destructor Destroy; override;
+
   end;
 
   TformTestSqlExtractor = class(TForm)
@@ -31,8 +45,6 @@ var
   formTestSqlExtractor: TformTestSqlExtractor;
 
 implementation
-
-uses Assis.SQLExtractor;
 
 {$R *.dfm}
 
@@ -60,6 +72,19 @@ begin
     FreeAndNil(Order);
   end;
 
+end;
+
+{ TOrder }
+
+destructor  TOrder.Destroy;
+begin
+  inherited;
+  FItem.Free;
+end;
+
+constructor TOrder.Create;
+begin
+  FITem := TObjectList<TItem>.Create;
 end;
 
 end.
