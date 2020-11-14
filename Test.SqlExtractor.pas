@@ -1,3 +1,4 @@
+<<<<<<< HEAD
 unit Test.SqlExtractor;
 
 interface
@@ -90,3 +91,95 @@ begin
 end;
 
 end.
+=======
+unit Test.SqlExtractor;
+
+interface
+
+uses
+  Winapi.Windows, Winapi.Messages, System.SysUtils, System.Variants, System.Classes, Vcl.Graphics,
+  Vcl.Controls, Vcl.Forms, Vcl.Dialogs, Vcl.StdCtrls,
+  System.Generics.Collections, Assis.SQLExtractor;
+
+type
+
+  TItem = class
+    [key('Id')]
+    FDescription: Currency;
+    Price: Currency;
+
+  end;
+
+  TOrder = class
+    [key]
+    FID: string;
+    FVendor: integer;
+    FCustomer: integer;
+    FDate: TDatetime;
+    FTotal: Currency;
+    [ForeignKey('Id')]
+    FITem: TObjectList<TItem>;
+
+    constructor Create;
+    destructor Destroy; override;
+
+  end;
+
+  TformTestSqlExtractor = class(TForm)
+    Memo1: TMemo;
+    Combobox1: TComboBox;
+    procedure ComboBox1Change(Sender: TObject);
+  private
+    { Private declarations }
+  public
+    { Public declarations }
+  end;
+
+var
+  formTestSqlExtractor: TformTestSqlExtractor;
+
+implementation
+
+{$R *.dfm}
+
+procedure TformTestSqlExtractor.ComboBox1Change(Sender: TObject);
+type
+  tSqlKind = (sqlCREATETABLE, sqlSELECT, sqlINSERT, sqlUPDATE, sqlDELETE);
+var
+  sqlKind: tSqlKind;
+  Order: TOrder;
+
+begin
+
+  Order := TOrder.Create;
+
+  try
+    sqlKind := tSqlKind(Combobox1.ItemIndex);
+    case sqlKind of
+      sqlCREATETABLE : Memo1.lines.Text := TSqlExtractor<TOrder>  .ExtractCreateTableSql(Order);
+      sqlSELECT      : Memo1.lines.Text := TSqlExtractor<TOrder>  .ExtractSelectSql(Order);
+      sqlINSERT      : Memo1.lines.Text := TSqlExtractor<TOrder>  .ExtractInsertIntoSql(Order);
+      sqlUPDATE      : Memo1.lines.Text := TSqlExtractor<TOrder>  .ExtractUpdateSql(Order);
+      sqlDELETE      : Memo1.lines.Text := TSqlExtractor<TOrder>  .ExtractDeleteSql(Order);
+    end;
+  finally
+    FreeAndNil(Order);
+  end;
+
+end;
+
+{ TOrder }
+
+destructor  TOrder.Destroy;
+begin
+  inherited;
+  FItem.Free;
+end;
+
+constructor TOrder.Create;
+begin
+  FITem := TObjectList<TItem>.Create;
+end;
+
+end.
+>>>>>>> cc2479522c9e0f829b9db0bc5d95c0b7a3a74e48
