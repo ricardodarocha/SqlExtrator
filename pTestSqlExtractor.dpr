@@ -11,6 +11,7 @@ uses
 begin
   Application.Initialize;
   Application.MainFormOnTaskbar := True;
+  ReportMemoryLeaksOnShutdown := True;
   Application.CreateForm(TformTestSqlExtractor, formTestSqlExtractor);
   Application.Run;
 end.

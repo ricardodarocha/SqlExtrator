@@ -41,13 +41,21 @@ type
 
   ForeignKeyAttribute = class(TCustomAttribute)
     fForeignKeyCampo: String;
-    constructor Create(aCampo: String);
+    constructor Create(aCampo: String = '');
   end;
 
   LookupAttribute = class(TCustomAttribute)
     fLookupCampo: String;
     constructor Create(aCampo: String);  //Campo da tabela ligada que será retornado, exemplo TCategoria.NOME
   end;
+  {$ENDREGION}
+
+  {$REGION 'Sql Stypes'}
+   { Declare the name of type as you want to generate the Create Table SQL }
+   VARCHAR = type string;
+   NUMERIC = type Extended;
+   DECIMAL = type Double;
+
   {$ENDREGION}
 
   /// <summary>
@@ -79,7 +87,7 @@ type
 implementation
 
 uses
-  System.SysUtils, System.Rtti;
+  System.SysUtils, System.Rtti, System.Contnrs;
 
 { TSqlExtrator<T> }
 
@@ -147,6 +155,7 @@ begin
                      vClassType: TClass;
                      vAttr: TCustomAttribute;
                      vTabelaEstrangeira: String;
+                     vI: Integer;
                      begin
                        for vAttr in aField.GetAttributes do
                          if vAttr is ForeignKeyAttribute then
@@ -154,12 +163,33 @@ begin
                        if vReferencedField = '' then
                          vReferencedField := 'CODIGO';
 
-                       if (aField.FieldType.TypeKind)=tkClass then
+                       if ((aField.FieldType.TypeKind)=tkClass) and (aField.FieldType.ToString.StartsWith ('TObjectList<')) then
                        begin
                          SetLength(vFieldNames, length(vFieldNames) + 1);
                          vTabelaEstrangeira := aField.FieldType.Name;
+                         Delete(vTabelaEstrangeira, 1, length('TObjectList<'));
+                         Delete(vTabelaEstrangeira, length(vTabelaEstrangeira), 1);
+                         for vI := length(vTabelaEstrangeira) downto 1 do
+                         if vTabelaEstrangeira[vI] = '.' then
+                         begin
+                           delete(vTabelaEstrangeira,1, vI);
+                           break;
+                         end;
+
+                         vTabelaEstrangeira := vTabelaEstrangeira + ' as ' + aField.Name;
+
                          delete(vTabelaEstrangeira,1,1);
-                         vFieldNames[high(vFieldNames)] := format('INNER JOIN %s on %0:s.%s = %s', [vTabelaEstrangeira, vReferencedField, aField.Name]);
+                         vFieldNames[high(vFieldNames)] := format('INNER JOIN %s on %s.%s = %s.%s', [vTabelaEstrangeira, aField.Name, vReferencedField, ExtractTableName(aClass), aField.Name]);
+
+
+                       end else
+
+                       if (aField.FieldType.TypeKind)=tkClass then
+                       begin
+                         SetLength(vFieldNames, length(vFieldNames) + 1);
+                         vTabelaEstrangeira := aField.FieldType.Name + ' as ' + aField.Name;
+                         delete(vTabelaEstrangeira,1,1);
+                         vFieldNames[high(vFieldNames)] := format('INNER JOIN %s on %s.%s = %s.%s', [vTabelaEstrangeira, aField.Name, vReferencedField, ExtractTableName(aClass), aField.Name]);
 
                          if not aField.GetValue(Pointer(aClass)).IsEmpty then
                          begin
