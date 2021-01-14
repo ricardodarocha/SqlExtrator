@@ -12,7 +12,7 @@ TOrder = class
   FTotal: Currency;
 end;
 
-strSelect := TSqlExtractor<TPedido>.ExtractSelectSql(vPedido)
+strSelect := TSqlExtractor<TOrder>.ExtractSelectSql(vPedido)
 ```
 ```bash
 >> strSelect = 'select id, vendor, customer, date, total from order'
