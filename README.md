@@ -12,7 +12,7 @@ TOrder = class
   FTotal: Currency;
 end;
 
-strSelect := TSqlExtractor<TOrder>.ExtractSelectSql(vPedido)
+strSelect := TSqlExtractor<TOrder>.ExtractSelectSql(vOrder)
 ```
 ```bash
 >> strSelect = 'select id, vendor, customer, date, total from order'
@@ -32,7 +32,7 @@ TOrder = class
   FTotal: Currency;
 end;
 
-strSelect := TSqlExtractor<TPedido>.ExtractUpdateSql(vPedido)
+strSelect := TSqlExtractor<TOrder>.ExtractUpdateSql(vOrder)
 ```
 ```bash
 >> strSelect = 'update order set id = :id, vendor = :vendor, customer = :customer, date=:date, total=:total where ID = :id'
@@ -57,7 +57,7 @@ TOrder = class
   FItem: TObjectList<TItem>;
 end;
 
-strSelect := TSqlExtractor<TPedido>.ExtractUpdateSql(vPedido)
+strSelect := TSqlExtractor<TOrder>.ExtractUpdateSql(vOrder)
 ```
 ```bash
 >> strSelect = select Order.ID, 
