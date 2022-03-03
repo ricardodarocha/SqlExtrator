@@ -1,9 +1,8 @@
-<<<<<<< HEAD
 unit Assis.SQLExtractor;
 
 interface
 
-uses Assis.RttiInterceptor;  ///https://github.com/ricardodarocha/RttiInterceptor
+uses Assis.RttiInterceptor;  ///https://github.com/ricardodarocha/Rtti
 
 type
 
@@ -47,7 +46,7 @@ type
 
   LookupAttribute = class(TCustomAttribute)
     fLookupCampo: String;
-    constructor Create(aCampo: String);  //Campo da tabela ligada que ser· retornado, exemplo TCategoria.NOME
+    constructor Create(aCampo: String);  //Campo da tabela ligada que ser√° retornado, exemplo TCategoria.NOME
   end;
   {$ENDREGION}
 
@@ -60,7 +59,7 @@ type
   {$ENDREGION}
 
   /// <summary>
-  /// Implementa mÈtodos para extrair sql autom·ticos de qualquer objeto
+  /// Implementa m√©todos para extrair sql autom√°ticos de qualquer objeto
   ///  <code>strTablename := TSqlExtrator<TPedido>.ExtractTablename(vPedido, 'TAB_')</code>
   ///  strSelect := TSqlExtrator<TPedido>.ExtractSelectSql(vPedido)
   ///  strUpdateSql := TSqlExtrator<TPedido>.ExtractUpdateSql(vPedido)
@@ -232,7 +231,7 @@ begin
   if vWhere <> '' then
     vWhere := ' WHERE ' + vWhere
   else
-    vwhere := '/* where n„o informado */';
+    vwhere := '/* where n√£o informado */';
 
   vCampos := Join(GetFieldNames(aClass)); //Campo1, Campo2, .. Campon
   if vCampos = '' then
@@ -249,7 +248,7 @@ begin
     vCamposLookup,
     ExtractTableName(aClass),
     vInnerJoin,
-    vWhere]); // select codigo, empresa, produto from produtoempresa /* where n„o informado */
+    vWhere]); // select codigo, empresa, produto from produtoempresa /* where n√£o informado */
 
 end;
 
@@ -273,7 +272,7 @@ begin
     vWhere]); // (codigo = :codigo) and (empresa = :empresa)
 
   if Length(vWhere) = 0 then
-    raise Exception.Create('AtenÁ„o UPDATE n„o encontrou cl·usula WHERE '#13 + result);
+    raise Exception.Create('Aten√ß√£o UPDATE n√£o encontrou cl√°usula WHERE '#13 + result);
 
 end;
 
@@ -545,12 +544,12 @@ type
 
   LookupAttribute = class(TCustomAttribute)
     fLookupCampo: String;
-    constructor Create(aCampo: String);  //Campo da tabela ligada que ser· retornado, exemplo TCategoria.NOME
+    constructor Create(aCampo: String);  //Campo da tabela ligada que ser√° retornado, exemplo TCategoria.NOME
   end;
   {$ENDREGION}
 
   /// <summary>
-  /// Implementa mÈtodos para extrair sql autom·ticos de qualquer objeto
+  /// Implementa m√©todos para extrair sql autom√°ticos de qualquer objeto
   ///  <code>strTablename := TSqlExtrator<TPedido>.ExtractTablename(vPedido, 'TAB_')</code>
   ///  strSelect := TSqlExtrator<TPedido>.ExtractSelectSql(vPedido)
   ///  strUpdateSql := TSqlExtrator<TPedido>.ExtractUpdateSql(vPedido)
@@ -722,7 +721,7 @@ begin
   if vWhere <> '' then
     vWhere := ' WHERE ' + vWhere
   else
-    vwhere := '/* where n„o informado */';
+    vwhere := '/* where n√£o informado */';
 
   vCampos := Join(GetFieldNames(aClass)); //Campo1, Campo2, .. Campon
   if vCampos = '' then
@@ -739,7 +738,7 @@ begin
     vCamposLookup,
     ExtractTableName(aClass),
     vInnerJoin,
-    vWhere]); // select codigo, empresa, produto from produtoempresa /* where n„o informado */
+    vWhere]); // select codigo, empresa, produto from produtoempresa /* where n√£o informado */
 
 end;
 
@@ -763,7 +762,7 @@ begin
     vWhere]); // (codigo = :codigo) and (empresa = :empresa)
 
   if Length(vWhere) = 0 then
-    raise Exception.Create('AtenÁ„o UPDATE n„o encontrou cl·usula WHERE '#13 + result);
+    raise Exception.Create('Aten√ß√£o UPDATE n√£o encontrou cl√°usula WHERE '#13 + result);
 
 end;
 
@@ -986,4 +985,3 @@ begin
 end;
 
 end.
->>>>>>> cc2479522c9e0f829b9db0bc5d95c0b7a3a74e48
