@@ -1,8 +1,8 @@
-unit Assis.SQLExtractor;
+unit SQL.Extractor;
 
 interface
 
-uses Assis.RttiInterceptor;  ///https://github.com/ricardodarocha/Rtti
+uses RttiInterceptor;  ///https://github.com/ricardodarocha/Rtti
 
 type
 
@@ -87,7 +87,7 @@ type
 implementation
 
 uses
-  System.SysUtils, System.Rtti, System.Contnrs;
+  SysUtils, Rtti, Contnrs;
 
 { TSqlExtrator<T> }
 
@@ -136,7 +136,7 @@ begin
     aKeyFields := ExtractKeyFields(aClass, aKeyFields);
 
   vWhere := TSqlExtractor<T>.ExtractWhere(aClass, aKeyFields);
-  result := format('DELETE FROM %s where (%s)', [ExtractTableName(aClass), vWhere]); // (codigo = :codigo) and (empresa = :empresa)
+  result := format('DELETE FROM %s where (%s)', [ExtractTableName(aClass), vWhere]); // (id = :id) and (user = :user)
 end;
 
 class function TSqlExtractor<T>.ExtractInnerJoin(aClass: T): TArray<string>;
@@ -154,32 +154,32 @@ begin
                     var
                      vClassType: TClass;
                      vAttr: TCustomAttribute;
-                     vTabelaEstrangeira: String;
+                     vForeignTable: String;
                      vI: Integer;
                      begin
                        for vAttr in aField.GetAttributes do
                          if vAttr is ForeignKeyAttribute then
                           vReferencedField := ForeignKeyAttribute(vAttr).fForeignKeyCampo;
                        if vReferencedField = '' then
-                         vReferencedField := 'CODIGO';
+                         vReferencedField := 'ID';
 
                        if ((aField.FieldType.TypeKind)=tkClass) and (aField.FieldType.ToString.StartsWith ('TObjectList<')) then
                        begin
                          SetLength(vFieldNames, length(vFieldNames) + 1);
-                         vTabelaEstrangeira := aField.FieldType.Name;
-                         Delete(vTabelaEstrangeira, 1, length('TObjectList<'));
-                         Delete(vTabelaEstrangeira, length(vTabelaEstrangeira), 1);
+                         vForeignTable := aField.FieldType.Name;
+                         Delete(vForeignTable, 1, length('TObjectList<'));
+                         Delete(vForeignTable, length(vForeignTable), 1);
                          for vI := length(vTabelaEstrangeira) downto 1 do
-                         if vTabelaEstrangeira[vI] = '.' then
+                         if vForeignTable[vI] = '.' then
                          begin
-                           delete(vTabelaEstrangeira,1, vI);
+                           delete(vForeignTable,1, vI);
                            break;
                          end;
 
-                         vTabelaEstrangeira := vTabelaEstrangeira + ' as ' + aField.Name;
+                         vForeignTable := vForeignTable + ' as ' + aField.Name;
 
-                         delete(vTabelaEstrangeira,1,1);
-                         vFieldNames[high(vFieldNames)] := format('INNER JOIN %s on %s.%s = %s.%s', [vTabelaEstrangeira, aField.Name, vReferencedField, ExtractTableName(aClass), aField.Name]);
+                         delete(vForeignTable,1,1);
+                         vFieldNames[high(vFieldNames)] := format('INNER JOIN %s on %s.%s = %s.%s', [vForeignTable, aField.Name, vReferencedField, ExtractTableName(aClass), aField.Name]);
 
 
                        end else
@@ -187,9 +187,9 @@ begin
                        if (aField.FieldType.TypeKind)=tkClass then
                        begin
                          SetLength(vFieldNames, length(vFieldNames) + 1);
-                         vTabelaEstrangeira := aField.FieldType.Name + ' as ' + aField.Name;
+                         vForeignTable := aField.FieldType.Name + ' as ' + aField.Name;
                          delete(vTabelaEstrangeira,1,1);
-                         vFieldNames[high(vFieldNames)] := format('INNER JOIN %s on %s.%s = %s.%s', [vTabelaEstrangeira, aField.Name, vReferencedField, ExtractTableName(aClass), aField.Name]);
+                         vFieldNames[high(vFieldNames)] := format('INNER JOIN %s on %s.%s = %s.%s', [vForeignTable, aField.Name, vReferencedField, ExtractTableName(aClass), aField.Name]);
 
                          if not aField.GetValue(Pointer(aClass)).IsEmpty then
                          begin
@@ -209,7 +209,7 @@ begin
     ExtractTableName(aClass),
     Join(GetFieldNames(aClass)),
     Join(GetParamNames(aClass))
-    ]); // (codigo, empresa) VALUES (:codigo, :empresa)
+    ]); // (id, user) VALUES (:id, :user)
 
 end;
 
@@ -218,8 +218,8 @@ class function TSqlExtractor<T>.ExtractSelectSql(aClass: T; aFilter: TArray<Stri
 var
   vIterator: Integer;
   vWhere: String;
-  vCamposLookup: String;
-  vCampos: String;
+  vLookupFields: String;
+  vFields: String;
   vInnerJoin: String;
 begin
   for vIterator := 0 to Length(aFilter)-1 do
@@ -231,24 +231,24 @@ begin
   if vWhere <> '' then
     vWhere := ' WHERE ' + vWhere
   else
-    vwhere := '/* where não informado */';
+    vwhere := '/* where */';
 
-  vCampos := Join(GetFieldNames(aClass)); //Campo1, Campo2, .. Campon
-  if vCampos = '' then
-    vCampos := ExtractTableName(aClass) + '.*';
+  vFields := Join(GetFieldNames(aClass)); //Campo1, Campo2, .. Campon
+  if vFields = '' then
+    vFields := ExtractTableName(aClass) + '.*';
 
-  vCamposLookup := Join(GetLookupFieldnames(aClass)); //Categoria.Nome, Categoria.Empresa
+  vLookupFields := Join(GetLookupFieldnames(aClass)); //Categoria.Nome, Categoria.Empresa
 
   vInnerJoin := '  ' + Join(TSqlExtractor<T>.ExtractInnerJoin(aClass), ''#13#10'  ');
   if vInnerJoin <> '' then
     vInnerJoin := vInnerJoin + ''#13;
 
   result := format('select %s %s '#13#10'from %s '#13#10 + '%s %s', [
-    vCampos,
-    vCamposLookup,
+    vFields,
+    vLookupFields,
     ExtractTableName(aClass),
     vInnerJoin,
-    vWhere]); // select codigo, empresa, produto from produtoempresa /* where não informado */
+    vWhere]); // select id, company, product from companyproduct /* where não informado */
 
 end;
 
@@ -262,17 +262,17 @@ begin
 
   vFieldNames := GetFieldnames(aClass);
   for vIterator := 0 to Length(vFieldNames)-1 do
-    vFieldNames[vIterator] := format ('%s = :%0:s', [vFieldNames[vIterator]]); // ('codigo = :codigo') AND ('empresa = :empresa')
+    vFieldNames[vIterator] := format ('%s = :%0:s', [vFieldNames[vIterator]]); // ('id = :id') AND ('company = :company')
 
   vWhere := TSqlExtractor<T>.ExtractWhere(aClass, aKeyFields);
 
   result := format('update %s set(%s) WHERE %s ', [
     ExtractTableName(aClass),
     Join(vFieldNames ),
-    vWhere]); // (codigo = :codigo) and (empresa = :empresa)
+    vWhere]); // (id = :id) and (company = :company)
 
   if Length(vWhere) = 0 then
-    raise Exception.Create('Atenção UPDATE não encontrou cláusula WHERE '#13 + result);
+    raise Exception.Create('Attention! UPDATE not found WHERE clause '#13 + result);
 
 end;
 
@@ -290,7 +290,7 @@ begin
     and (pos('<',  aKeyFields[vIterator]) = 0)
     and (pos(' not in',  aKeyFields[vIterator]) = 0)
     and (pos(' between',  aKeyFields[vIterator]) = 0) then
-    aKeyFields[vIterator] := format ('(%s = :%0:s)', [aKeyFields[vIterator]]); //['codigo = :codigo', 'empresa = :empresa']
+    aKeyFields[vIterator] := format ('(%s = :%0:s)', [aKeyFields[vIterator]]); //['id = :id', 'co = :co']
 
   result := trim(Join(aKeyFields, ' AND '));
 end;
