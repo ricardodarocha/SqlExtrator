@@ -9,7 +9,7 @@ type
   {$REGION 'Anotations'}
   KeyAttribute = class(TCustomAttribute)
     fCampoChave: String;
-    constructor Create(aCampoChave: String = 'CODIGO');
+    constructor Create(aKeyField: String = 'CODIGO');
   end;
 
   AutoincrementAttribute = class(TCustomAttribute)
@@ -33,7 +33,7 @@ type
 
   UniqueAttribute = class(TCustomAttribute)
     fUniqueCampos: String;
-    constructor Create(aCampos: String);
+    constructor Create(aFields: String);
   end;
 
   NotnullAttribute = class(TCustomAttribute)
@@ -41,12 +41,12 @@ type
 
   ForeignKeyAttribute = class(TCustomAttribute)
     fForeignKeyCampo: String;
-    constructor Create(aCampo: String = '');
+    constructor Create(aField: String = '');
   end;
 
   LookupAttribute = class(TCustomAttribute)
     fLookupCampo: String;
-    constructor Create(aCampo: String);  //Campo da tabela ligada que será retornado, exemplo TCategoria.NOME
+    constructor Create(aField: String);  //Result Field, example TCategory.Description
   end;
   {$ENDREGION}
 
@@ -59,7 +59,7 @@ type
   {$ENDREGION}
 
   /// <summary>
-  /// Implementa métodos para extrair sql automáticos de qualquer objeto
+  /// Implements methods to extract sql from any Object
   ///  <code>strTablename := TSqlExtrator<TPedido>.ExtractTablename(vPedido, 'TAB_')</code>
   ///  strSelect := TSqlExtrator<TPedido>.ExtractSelectSql(vPedido)
   ///  strUpdateSql := TSqlExtrator<TPedido>.ExtractUpdateSql(vPedido)
